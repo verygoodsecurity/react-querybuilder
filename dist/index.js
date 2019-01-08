@@ -1900,6 +1900,11 @@ var QueryBuilder = function (_React$Component) {
             var rule = this._findRule(ruleId, this.state.root);
             Object.assign(rule, _defineProperty({}, prop, value));
 
+            // reset value, if field changed
+            if (prop === 'field') {
+                Object.assign(rule, { 'value': null });
+            }
+
             this.setState({ root: this.state.root });
         }
     }, {
