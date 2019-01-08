@@ -2146,6 +2146,8 @@ module.exports = focusNode;
 "use strict";
 
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 __webpack_require__(55);
@@ -2170,7 +2172,37 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var fields = [{ name: 'firstName', label: 'First Name' }, { name: 'lastName', label: 'Last Name' }, { name: 'age', label: 'Age' }, { name: 'address', label: 'Address' }, { name: 'phone', label: 'Phone' }, { name: 'email', label: 'Email' }, { name: 'twitter', label: 'Twitter' }, { name: 'isDev', label: 'Is a Developer?', value: false }];
+var fields1 = [{ name: 'firstName', label: 'First Name' }, { name: 'lastName', label: 'Last Name' }, { name: 'age', label: 'Age' }, { name: 'address', label: 'Address' }, { name: 'phone', label: 'Phone' }, { name: 'email', label: 'Email' }, { name: 'twitter', label: 'Twitter' }, { name: 'isDev', label: 'Is a Developer?', value: false }];
+
+var fields2 = [{ name: 'contactFirstName', label: 'Contact First Name' }, { name: 'contactLastName', label: 'Contact Last Name' }, { name: 'contactEmail', label: 'Contact Email' }];
+
+var fieldQuerySets = {
+    set1: {
+        fields: fields1,
+        query: {
+            "id": "g-fe7a7130-9d9f-4ec8-b5d3-79b5f0aff350",
+            "rules": [{
+                "id": "r-2c153586-5044-4ceb-9f36-cee6b06b035f",
+                "field": "firstName",
+                "value": "Steve",
+                "operator": "="
+            }],
+            "combinator": "and"
+        }
+    },
+
+    set2: {
+        fields: fields2,
+        query: {
+            "rules": [{
+                "field": "contactFirstName",
+                "value": "Sally",
+                "operator": "="
+            }],
+            "combinator": "and"
+        }
+    }
+};
 
 var RootView = function (_React$Component) {
     _inherits(RootView, _React$Component);
@@ -2180,8 +2212,23 @@ var RootView = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (RootView.__proto__ || Object.getPrototypeOf(RootView)).call(this));
 
+        _this.handleChange = function (e) {
+            e.persist();
+            _this.setState(function (prevState) {
+                return { currentSet: e.target.value };
+            });
+        };
+
         _this.state = {
-            query: {}
+            query: {
+                set1: fieldQuerySets.set1.query,
+                set2: fieldQuerySets.set2.query
+            },
+            fields: {
+                set1: fieldQuerySets.set1.fields,
+                set2: fieldQuerySets.set2.fields
+            },
+            currentSet: "set1"
         };
         return _this;
     }
@@ -2192,29 +2239,52 @@ var RootView = function (_React$Component) {
             var controlElements = {
                 valueEditor: this.customValueEditor()
             };
+            var currentSet = this.state.currentSet;
+
+
             return _react2.default.createElement(
                 'div',
-                { className: 'flex-box' },
+                { className: 'flex-box-outer' },
                 _react2.default.createElement(
-                    'div',
-                    { className: 'scroll' },
-                    _react2.default.createElement(_index2.default, { fields: this.props.fields,
-                        controlElements: controlElements,
-                        controlClassnames: { fields: 'form-control' },
-                        onQueryChange: this.logQuery.bind(this) })
+                    'select',
+                    { className: 'set-changer', name: 'fieldToggle', value: this.state.currentSet, onChange: this.handleChange },
+                    _react2.default.createElement(
+                        'option',
+                        { value: 'set1' },
+                        'Set 1'
+                    ),
+                    _react2.default.createElement(
+                        'option',
+                        { value: 'set2' },
+                        'Set 2'
+                    )
                 ),
                 _react2.default.createElement(
                     'div',
-                    { className: 'shrink query-log scroll' },
+                    { className: 'flex-box' },
                     _react2.default.createElement(
-                        'h4',
-                        null,
-                        'Query'
+                        'div',
+                        { className: 'scroll' },
+                        _react2.default.createElement(_index2.default, {
+                            query: this.state.query[currentSet],
+                            fields: this.state.fields[currentSet],
+                            controlElements: controlElements,
+                            controlClassnames: { fields: 'form-control' },
+                            onQueryChange: this.logQuery.bind(this) })
                     ),
                     _react2.default.createElement(
-                        'pre',
-                        null,
-                        JSON.stringify(this.state.query, null, 2)
+                        'div',
+                        { className: 'shrink query-log scroll' },
+                        _react2.default.createElement(
+                            'h4',
+                            null,
+                            'Query'
+                        ),
+                        _react2.default.createElement(
+                            'pre',
+                            null,
+                            JSON.stringify(this.state.query[this.state.currentSet], null, 2)
+                        )
                     )
                 )
             );
@@ -2225,10 +2295,10 @@ var RootView = function (_React$Component) {
             var checkbox = function (_React$Component2) {
                 _inherits(MyCheckbox, _React$Component2);
 
-                function MyCheckbox(props) {
+                function MyCheckbox() {
                     _classCallCheck(this, MyCheckbox);
 
-                    return _possibleConstructorReturn(this, (MyCheckbox.__proto__ || Object.getPrototypeOf(MyCheckbox)).call(this, props));
+                    return _possibleConstructorReturn(this, (MyCheckbox.__proto__ || Object.getPrototypeOf(MyCheckbox)).apply(this, arguments));
                 }
 
                 _createClass(MyCheckbox, [{
@@ -2263,14 +2333,16 @@ var RootView = function (_React$Component) {
     }, {
         key: 'logQuery',
         value: function logQuery(query) {
-            this.setState({ query: query });
+            var currentQuery = _extends({}, this.state.query[this.state.currentSet]);
+            currentQuery.query = query;
+            this.setState({ currentQuery: currentQuery });
         }
     }]);
 
     return RootView;
 }(_react2.default.Component);
 
-_reactDom2.default.render(_react2.default.createElement(RootView, { fields: fields }), document.querySelector('.container'));
+_reactDom2.default.render(_react2.default.createElement(RootView, null), document.querySelector('.container'));
 
 /***/ }),
 /* 55 */
@@ -2308,6 +2380,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _v = __webpack_require__(28);
@@ -2334,7 +2408,7 @@ var _index = __webpack_require__(142);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty2(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2405,6 +2479,20 @@ var QueryBuilder = function (_React$Component) {
     }
 
     _createClass(QueryBuilder, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            var schema = _extends({}, this.state.schema);
+
+            if (this.props.query !== nextProps.query) {
+                this.setState({ root: this.generateValidQuery(nextProps.query) });
+            }
+
+            if (schema.fields !== nextProps.fields) {
+                schema.fields = nextProps.fields;
+                this.setState({ schema: schema });
+            }
+        }
+    }, {
         key: 'componentWillMount',
         value: function componentWillMount() {
             var _this2 = this;
@@ -2444,9 +2532,29 @@ var QueryBuilder = function (_React$Component) {
             });
         }
     }, {
+        key: 'generateValidQuery',
+        value: function generateValidQuery(query) {
+            var _this3 = this;
+
+            if (this.isRuleGroup(query)) {
+                return {
+                    id: query.id || 'g-' + (0, _v2.default)(),
+                    rules: query.rules.map(function (rule) {
+                        return _this3.generateValidQuery(rule);
+                    }),
+                    combinator: query.combinator
+                };
+            }
+            return _extends({
+                id: query.id || 'r-' + (0, _v2.default)()
+            }, query);
+        }
+    }, {
         key: 'getInitialQuery',
         value: function getInitialQuery() {
-            return this.props.query || this.createRuleGroup();
+            var query = this.props.query;
+
+            return query && this.generateValidQuery(query) || this.createRuleGroup();
         }
     }, {
         key: 'componentDidMount',
@@ -2539,7 +2647,12 @@ var QueryBuilder = function (_React$Component) {
         key: 'onPropChange',
         value: function onPropChange(prop, value, ruleId) {
             var rule = this._findRule(ruleId, this.state.root);
-            Object.assign(rule, _defineProperty({}, prop, value));
+            Object.assign(rule, _defineProperty2({}, prop, value));
+
+            // reset value, if field changed
+            if (prop === 'field') {
+                Object.assign(rule, _defineProperty({}, 'value', ''));
+            }
 
             this.setState({ root: this.state.root });
         }
@@ -2573,7 +2686,7 @@ var QueryBuilder = function (_React$Component) {
     }, {
         key: '_getLevel',
         value: function _getLevel(id, index, root) {
-            var _this3 = this;
+            var _this4 = this;
 
             var isRuleGroup = this.state.schema.isRuleGroup;
 
@@ -2586,7 +2699,7 @@ var QueryBuilder = function (_React$Component) {
                     if (foundAtIndex === -1) {
                         var indexForRule = index;
                         if (isRuleGroup(rule)) indexForRule++;
-                        foundAtIndex = _this3._getLevel(id, indexForRule, rule);
+                        foundAtIndex = _this4._getLevel(id, indexForRule, rule);
                     }
                 });
             }

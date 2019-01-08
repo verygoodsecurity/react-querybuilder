@@ -1667,6 +1667,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _v = __webpack_require__(24);
@@ -1693,7 +1695,7 @@ var _index = __webpack_require__(131);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty2(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1764,6 +1766,20 @@ var QueryBuilder = function (_React$Component) {
     }
 
     _createClass(QueryBuilder, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            var schema = _extends({}, this.state.schema);
+
+            if (this.props.query !== nextProps.query) {
+                this.setState({ root: this.generateValidQuery(nextProps.query) });
+            }
+
+            if (schema.fields !== nextProps.fields) {
+                schema.fields = nextProps.fields;
+                this.setState({ schema: schema });
+            }
+        }
+    }, {
         key: 'componentWillMount',
         value: function componentWillMount() {
             var _this2 = this;
@@ -1803,9 +1819,29 @@ var QueryBuilder = function (_React$Component) {
             });
         }
     }, {
+        key: 'generateValidQuery',
+        value: function generateValidQuery(query) {
+            var _this3 = this;
+
+            if (this.isRuleGroup(query)) {
+                return {
+                    id: query.id || 'g-' + (0, _v2.default)(),
+                    rules: query.rules.map(function (rule) {
+                        return _this3.generateValidQuery(rule);
+                    }),
+                    combinator: query.combinator
+                };
+            }
+            return _extends({
+                id: query.id || 'r-' + (0, _v2.default)()
+            }, query);
+        }
+    }, {
         key: 'getInitialQuery',
         value: function getInitialQuery() {
-            return this.props.query || this.createRuleGroup();
+            var query = this.props.query;
+
+            return query && this.generateValidQuery(query) || this.createRuleGroup();
         }
     }, {
         key: 'componentDidMount',
@@ -1898,7 +1934,12 @@ var QueryBuilder = function (_React$Component) {
         key: 'onPropChange',
         value: function onPropChange(prop, value, ruleId) {
             var rule = this._findRule(ruleId, this.state.root);
-            Object.assign(rule, _defineProperty({}, prop, value));
+            Object.assign(rule, _defineProperty2({}, prop, value));
+
+            // reset value, if field changed
+            if (prop === 'field') {
+                Object.assign(rule, _defineProperty({}, 'value', ''));
+            }
 
             this.setState({ root: this.state.root });
         }
@@ -1932,7 +1973,7 @@ var QueryBuilder = function (_React$Component) {
     }, {
         key: '_getLevel',
         value: function _getLevel(id, index, root) {
-            var _this3 = this;
+            var _this4 = this;
 
             var isRuleGroup = this.state.schema.isRuleGroup;
 
@@ -1945,7 +1986,7 @@ var QueryBuilder = function (_React$Component) {
                     if (foundAtIndex === -1) {
                         var indexForRule = index;
                         if (isRuleGroup(rule)) indexForRule++;
-                        foundAtIndex = _this3._getLevel(id, indexForRule, rule);
+                        foundAtIndex = _this4._getLevel(id, indexForRule, rule);
                     }
                 });
             }
