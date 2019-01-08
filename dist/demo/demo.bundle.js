@@ -2408,7 +2408,7 @@ var _index = __webpack_require__(142);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _defineProperty2(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2647,11 +2647,11 @@ var QueryBuilder = function (_React$Component) {
         key: 'onPropChange',
         value: function onPropChange(prop, value, ruleId) {
             var rule = this._findRule(ruleId, this.state.root);
-            Object.assign(rule, _defineProperty2({}, prop, value));
+            Object.assign(rule, _defineProperty({}, prop, value));
 
             // reset value, if field changed
             if (prop === 'field') {
-                Object.assign(rule, _defineProperty({}, 'value', ''));
+                Object.assign(rule, { 'value': null });
             }
 
             this.setState({ root: this.state.root });
