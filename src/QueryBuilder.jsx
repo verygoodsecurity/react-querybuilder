@@ -284,7 +284,7 @@ export default class QueryBuilder extends React.Component {
 
         // reset value, if field changed
         if(prop === 'field') {
-          Object.assign(rule, _defineProperty({}, 'value', ''));
+          Object.assign(rule, {'value': null});
         }
 
         this.setState({root: this.state.root});
