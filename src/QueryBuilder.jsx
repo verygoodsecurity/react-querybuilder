@@ -255,7 +255,6 @@ export default class QueryBuilder extends React.Component {
         // reset value, if field changed
         if (prop === 'field') {
           Object.assign(rule, { 'value': '' });
-          Object.assign(rule, {'operator': 'equals'});
         }
         if(this.props.fieldMappings[value]) {
           const fieldValue = this.props.fieldMappings[value];
